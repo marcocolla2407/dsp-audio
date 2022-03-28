@@ -1,28 +1,41 @@
 '''
 Demonstrates specific audio effect using digital signal 
 processing (DSP).
-This effect is called XXX
+This effect is called Reverb
 References:
-Author: 
-Date: 
+Author: Mike Aleixo
+Date: 27/03/2022
 '''
 from scipy import signal
 import numpy as np
 
-    # Reverb effect
 def reverb(sig, revImpulseResponse):
-        """
-        Function to replicate reverb effect on a signal.
-        The reverb effect is the replication of the reflections of a sound wave
-        on a ambient.
-        """
-        #sig = self.normalize(self.sig)
-        #revfs, revImpulseResponse = wavfile.read(file)
-        revImpulseResponse = revImpulseResponse[revImpulseResponse != 0]
-        sig = signal.fftconvolve(sig, revImpulseResponse) # using fft for convolution is faster than the usual linear convolution
-        sig /= np.max(np.abs(sig)) # normalize output
-        #sig = self.denormalize(sig)
+        length= len(sig)
+        nsample= np.array(range(length)) #creates an array of signal length
+        r=5000 #delay factor
+        a=0.8 #attenuation factor
+        revImpulseResponse = revImpulseResponse[revImpulseResponse != 0] #creates a filtered list with non-zero values
+        sign = signal.fftconvolve(sig, revImpulseResponse) # convolution between signal and impulse response
+        sign /= np.max(np.abs(sig)) # normalize output
+        
+        #Index for delay
+        index= np.round(nsample-r)
+        index[index<0]= 0 
+        index[index>(length-1)]= length-1
 
-        #TO-DO
-        #take out the silence in the end (tail of the convolution)
-        return sig
+        out_sig= np.zeros(length) #Imput Signal
+
+        for j in range(length): #loop to calculation  each sample
+          out_sig[j]= np.float(sig[j]) + a*np.float(sig[int(index[j])]) #Add Delayed signal
+        
+        #plt.plot(out_sig,'r',sig,'b')
+        #plt.show()
+
+        #removing the silence in the end (tail of the convolution)
+        energy_out_sig= sum(np.abs(out_sig)**2)#energy  out signal
+        energy_interest_out_sig=energy_out_sig*0.99 #energy of interest
+        sample_interest_out_sig=np.around(energy_interest_out_sig*length/energy_out_sig) #signal interest sample
+        
+        #plt.plot(out_sig,'r',sig,'b')
+
+        return sign[1:int(sample_interest_out_sig)]

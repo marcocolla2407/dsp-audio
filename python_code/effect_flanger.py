@@ -7,6 +7,7 @@ Author: Marco Aurelio Colla
 Date: 27/03/2022
 '''
 import numpy as np
+
 def flanger(audioin,Fs):
     length= len(audioin)
     nsample= np.array(range(length))
@@ -23,14 +24,16 @@ def flanger(audioin,Fs):
     print(out.shape)
     for j in range(length): #For each sample
        out[j]= np.float(audioin[j]) + np.float(audioin[int(index[j])]) #Add Delayed signal
-    plt.plot(out,'r',audioin,'b')
-    plt.xlabel ("Sample Index")
-    plt.ylabel("Delay Amount (normalized)")
-    plt.title("Delay vs Time")
+    if False:
+        plt.plot(out,'r',audioin,'b')
+        plt.xlabel ("Sample Index")
+        plt.ylabel("Delay Amount (normalized)")
+        plt.title("Delay vs Time")
     return out
-    
-flanger(sinal,samplerate)
 
-x=flanger(sinal,samplerate)
+if False:    
+    flanger(sinal,samplerate)
 
-Audio(data=x, rate=samplerate)
+    x=flanger(sinal,samplerate)
+
+    Audio(data=x, rate=samplerate)
